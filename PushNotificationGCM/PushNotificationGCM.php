@@ -157,7 +157,7 @@ class PushNotificationGCM
         if(is_string($device_token))
             $this->devices[] = $device_token;
         else
-            throw new PushNotificationGCMException(DEVICE_TOKEN_IS_NOT_STRING,'Please, check the device token format');
+            throw new PushNotificationGCMException(PushNotificationGCMException::DEVICE_TOKEN_IS_NOT_STRING,'Please, check the device token format');
     }
 
     /**
@@ -171,7 +171,7 @@ class PushNotificationGCM
         if (is_array($message))
             $this->message = $message;
         else
-            throw new PushNotificationGCMException(MESSAGE_IS_NOT_ARRAY,'Please, check your message format');
+            throw new PushNotificationGCMException(PushNotificationGCMException::MESSAGE_IS_NOT_ARRAY,'Please, check your message format');
     }
 
     /**
@@ -185,7 +185,7 @@ class PushNotificationGCM
         foreach ($this->devices as $device_token) {
             if (!$this->sendTo($device_token)) {
                 if (!$this->checkValidity($device_token)) {
-                    throw new PushNotificationGCMException(DEVICE_TOKEN_IS_NOT_VALID,'Please, the device token is not valid:' . $device_token);
+                    throw new PushNotificationGCMException(PushNotificationGCMException::DEVICE_TOKEN_IS_NOT_VALID,'Please, the device token is not valid:' . $device_token);
                 }
             }
         }
@@ -230,14 +230,14 @@ class PushNotificationGCM
         curl_close($ch);
 
         if ($response === FALSE) {
-            throw new PushNotificationGCMException(CURL_ERROR,'error: ' . $error);
+            throw new PushNotificationGCMException(PushNotificationGCMException::CURL_ERROR,'error: ' . $error);
         } else if ($jBody = json_decode($body)) {
             if ($jBody->success)
                 $response = true;
             else
-                throw new PushNotificationGCMException(SEND_TO_RESPONSE_ERROR,'error to send to:' . $device_token);
+                throw new PushNotificationGCMException(PushNotificationGCMException::SEND_TO_RESPONSE_ERROR,'error to send to:' . $device_token);
         } else {
-            throw new PushNotificationGCMException(SEND_TO_RESPONSE_IS_NOT_VALID,'response is not a valid json');
+            throw new PushNotificationGCMException(PushNotificationGCMException::SEND_TO_RESPONSE_IS_NOT_VALID,'response is not a valid json');
         }
 
         return $response;
@@ -280,15 +280,15 @@ class PushNotificationGCM
         curl_close($ch);
 
         if ($response === FALSE) {
-            throw new PushNotificationGCMException(CURL_ERROR,'error: ' . $error);
+            throw new PushNotificationGCMException(PushNotificationGCMException::CURL_ERROR,'error: ' . $error);
         } else if ($jBody = json_decode($body)) {
             if ($jBody->success)
                 $response = true;
             else
-                throw new PushNotificationGCMException(CHECK_VALIDITY_RESPONSE_IS_NOT_VALID,'error to send validity to:' . $device_token);
+                throw new PushNotificationGCMException(PushNotificationGCMException::CHECK_VALIDITY_RESPONSE_IS_NOT_VALID,'error to send validity to:' . $device_token);
 
         } else {
-            throw new PushNotificationGCMException(CHECK_VALIDITY_RESPONSE_IS_NOT_VALID,'response is not a valid json');
+            throw new PushNotificationGCMException(PushNotificationGCMException::CHECK_VALIDITY_RESPONSE_IS_NOT_VALID_JSON,'response is not a valid json');
         }
 
         return $response;

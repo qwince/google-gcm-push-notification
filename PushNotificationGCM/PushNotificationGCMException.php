@@ -16,12 +16,14 @@ class PushNotificationGCMException extends Exception {
     /**
      * Error code
      */
-    const MESSAGE_IS_NOT_ARRAY          = 10;
-    const DEVICE_TOKEN_IS_NOT_VALID     = 11;
-    const DEVICE_TOKEN_IS_NOT_STRING    = 12;
-    const SEND_TO_RESPONSE_ERROR        = 13;
-    const SEND_TO_RESPONSE_IS_NOT_VALID = 14;
-    const CURL_ERROR                    = 15;
+    const MESSAGE_IS_NOT_ARRAY                      = 10;
+    const DEVICE_TOKEN_IS_NOT_VALID                 = 11;
+    const DEVICE_TOKEN_IS_NOT_STRING                = 12;
+    const SEND_TO_RESPONSE_ERROR                    = 13;
+    const SEND_TO_RESPONSE_IS_NOT_VALID             = 14;
+    const CHECK_VALIDITY_RESPONSE_IS_NOT_VALID      = 15;
+    const CHECK_VALIDITY_RESPONSE_IS_NOT_VALID_JSON = 16;
+    const CURL_ERROR                                = 17;
 
     /**
      * @param int $code
@@ -40,5 +42,4 @@ class PushNotificationGCMException extends Exception {
     public function getPushNotificationCode(){
         return $this->code;
     }
-
 }
