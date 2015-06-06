@@ -42,7 +42,7 @@ then update your dependencies with `composer update`.
         $pushNotificationGCM->push();
         
         //if you want return the error message
-        echo $pushNotificationGCM->debug;
+        echo implode(",",$pushNotificationGCM->debug);
         
     }catch (PushNotificationGCMException $e){
         echo 'Error code: '.$e->getPushNotificationCode()." - ".$e->getMessage();

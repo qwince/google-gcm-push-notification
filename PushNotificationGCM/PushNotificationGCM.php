@@ -16,8 +16,10 @@ include_once 'PushNotificationGCMException.php';
 class PushNotificationGCM
 {
 
-    /** @var boolean|callback */
-    public $debug = '';
+    /**
+     * @var array
+     */
+    public $debug = array();
 
     /**
      * Google GCM apiKey
@@ -191,7 +193,7 @@ class PushNotificationGCM
         foreach ($this->devices as $device_token) {
             if (!$this->sendTo($device_token)) {
                 if (!$this->checkValidity($device_token)) {
-                    $this->debug .='Please, check the device token!!! Is not valid: ' . $device_token;
+                    $this->debug[] ='Please, check the device token!!! Is not valid: ' . $device_token;
                 }
             }
         }
@@ -236,14 +238,14 @@ class PushNotificationGCM
         curl_close($ch);
 
         if ($response === FALSE) {
-            $this->debug .= 'Push failure with error: ' . $error;
+            $this->debug[] = 'Push failure with error: ' . $error;
         } else if ($jBody = json_decode($body)) {
             if ($jBody->success)
                 $response = true;
             else
-                $this->debug .='Push return failure status for the device:' . $device_token;
+                $this->debug[] ='Push return failure status for the device:' . $device_token;
         } else {
-            $this->debug .='Push says that the response contains a json invalid';
+            $this->debug[] ='Push says that the response contains a json invalid';
         }
 
         return $response;
@@ -286,15 +288,15 @@ class PushNotificationGCM
         curl_close($ch);
 
         if ($response === FALSE) {
-            $this->debug .= 'Check validity failure with error:' . $error;
+            $this->debug[] = 'Check validity failure with error:' . $error;
         } else if ($jBody = json_decode($body)) {
             if ($jBody->success)
                 $response = true;
             else
-                $this->debug .='Check validity return failure status for the device:' . $device_token;
+                $this->debug[] ='Check validity return failure status for the device:' . $device_token;
 
         } else {
-            $this->debug .='Check validity says that the response contains a json invalid';
+            $this->debug[] ='Check validity says that the response contains a json invalid';
         }
 
         return $response;
