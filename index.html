@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-dark.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <title>Google-gcm-push-notification by spitalia</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1>Google-gcm-push-notification</h1>
+          <h2>Google GCM Push Notification is small PHP library for send push notification to Android and iOS mobile devices.</h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/spitalia/google-gcm-push-notification/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/spitalia/google-gcm-push-notification/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/spitalia/google-gcm-push-notification" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
+          <h1>
+<a id="push-notification-gcm" class="anchor" href="#push-notification-gcm" aria-hidden="true"><span class="octicon octicon-link"></span></a>Push Notification GCM</h1>
+
+<p>Google GCM Push Notification is small PHP library for send push notification to Android and iOS mobile devices.</p>
+
+<h2>
+<a id="install" class="anchor" href="#install" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install</h2>
+
+<p>Please follow the guide <a href="https://developers.google.com/cloud-messaging/">Google GCM</a> for configure the API Key.</p>
+
+<ul>
+<li>
+<a href="https://developers.google.com/cloud-messaging/ios/client">iOS guide</a> </li>
+<li><a href="https://developers.google.com/cloud-messaging/android/client">Android guide</a></li>
+</ul>
+
+<h3>
+<a id="composer" class="anchor" href="#composer" aria-hidden="true"><span class="octicon octicon-link"></span></a>Composer</h3>
+
+<p>The preferred way to install Push Notification GCM is via <a href="http://getcomposer.org/">composer</a>.</p>
+
+<p>Add in your <code>composer.json</code>:</p>
+
+<pre><code>"require": {
+    ...
+    "spitalia/push-notification-gcm": "dev-master"
+
+}
+</code></pre>
+
+<p>then update your dependencies with <code>composer update</code>.</p>
+
+<h2>
+<a id="start-usage" class="anchor" href="#start-usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Start usage</h2>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"></span>
+<span class="pl-s1">    <span class="pl-smi">$pushNotificationGCM</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">PushNotificationGCM</span>(<span class="pl-smi">$google_api_key</span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1">    <span class="pl-smi">$devices</span> <span class="pl-k">=</span> <span class="pl-c1">array</span>(<span class="pl-smi">$devicetoken</span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1">    <span class="pl-k">foreach</span>(<span class="pl-smi">$devices</span> <span class="pl-k">as</span> <span class="pl-smi">$devicetoken</span>){</span>
+<span class="pl-s1">        <span class="pl-smi">$pushNotificationGCM</span><span class="pl-k">-&gt;</span>addDevice(<span class="pl-smi">$devicetoken</span>);</span>
+<span class="pl-s1">    }</span>
+<span class="pl-s1"></span>
+<span class="pl-s1">    <span class="pl-smi">$message</span> <span class="pl-k">=</span> <span class="pl-c1">array</span>(<span class="pl-s"><span class="pl-pds">'</span>message<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>hello<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>reason<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>new_event<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1">    <span class="pl-smi">$pushNotificationGCM</span><span class="pl-k">-&gt;</span>addMessage(<span class="pl-smi">$message</span>);</span>
+<span class="pl-s1">    <span class="pl-smi">$pushNotificationGCM</span><span class="pl-k">-&gt;</span>push();</span>
+<span class="pl-s1"></span></pre></div>
+
+<h2>
+<a id="creators" class="anchor" href="#creators" aria-hidden="true"><span class="octicon octicon-link"></span></a>Creators</h2>
+
+<p><strong>Securproject.it Team</strong></p>
+
+<h2>
+<a id="licence" class="anchor" href="#licence" aria-hidden="true"><span class="octicon octicon-link"></span></a>Licence</h2>
+
+<p>Free for commercial and non-commercial use (<a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License</a> or <a href="http://www.gnu.org/licenses/gpl-2.0.html">GPL</a>).</p>
+        </section>
+
+        <footer>
+          Google-gcm-push-notification is maintained by <a href="https://github.com/spitalia">spitalia</a><br>
+          This page was generated by <a href="https://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+        
+      </div>
+    </div>
+  </body>
+</html>
