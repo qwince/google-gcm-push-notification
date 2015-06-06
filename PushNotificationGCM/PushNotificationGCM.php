@@ -146,7 +146,7 @@ class PushNotificationGCM
      *
      * @param $api_key
      */
-    function __construct($api_key, $logger)
+    function __construct($api_key)
     {
         if(is_string($api_key))
             $this->api_key = $api_key;
