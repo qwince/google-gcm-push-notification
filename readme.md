@@ -44,6 +44,9 @@ then update your dependencies with `composer update`.
         //if you want return the error message
         echo implode(",",$pushNotificationGCM->debug);
         
+        //the class return the device token broken into $device_token_not_valid
+        print_r($pushNotificationGCM->device_token_not_valid);
+        
     }catch (PushNotificationGCMException $e){
         echo 'Error code: '.$e->getPushNotificationCode()." - ".$e->getMessage();
     } catch(Exception $e){

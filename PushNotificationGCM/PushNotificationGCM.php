@@ -17,6 +17,12 @@ class PushNotificationGCM
 {
 
     /**
+     * array contains the devide token not valid
+     * @var array
+     */
+    public $device_token_not_valid = array();
+
+    /**
      * @var array
      */
     public $debug = array();
@@ -193,6 +199,7 @@ class PushNotificationGCM
         foreach ($this->devices as $device_token) {
             if (!$this->sendTo($device_token)) {
                 if (!$this->checkValidity($device_token)) {
+                    $this->device_token_not_valid[] = $device_token;
                     $this->debug[] ='Please, check the device token!!! Is not valid: ' . $device_token;
                 }
             }
