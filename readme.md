@@ -31,17 +31,20 @@ then update your dependencies with `composer update`.
 ``` php
 
     $pushNotificationGCM = new PushNotificationGCM($google_api_key);
-    
     $devices = array($devicetoken);
-    
-    foreach($devices as $devicetoken){
-        $pushNotificationGCM->addDevice($devicetoken);
-    }
-    
     $message = array('message' => 'hello', 'reason' => 'new_event');
     
-    $pushNotificationGCM->addMessage($message);
-    $pushNotificationGCM->push();
+    try {
+        foreach($devices as $devicetoken){
+            $pushNotificationGCM->addDevice($devicetoken);
+        }
+        $pushNotificationGCM->addMessage($message);
+        $pushNotificationGCM->push();
+    }catch (PushNotificationGCMException $e){
+        echo 'Error code:'.$e->getPushNotificationCode()." - ".$e->getMessage();
+    } catch(Exception $e){
+        echo $e->getMessage();
+    }
     
 ```
 

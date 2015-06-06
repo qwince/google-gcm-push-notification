@@ -11,8 +11,11 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2 (one or other)
  */
 
+include_once 'PushNotificationGCMException.php';
+
 class PushNotificationGCM
 {
+
     /**
      * Google GCM apiKey
      * @var string
@@ -133,7 +136,6 @@ class PushNotificationGCM
         87 => 'CURLE_FTP_BAD_FILE_LIST',
         88 => 'CURLE_CHUNK_FAILED');
 
-
     /**
      *
      *
@@ -152,7 +154,10 @@ class PushNotificationGCM
      */
     public function addDevice($device_token)
     {
-        $this->devices[] = $device_token;
+        if(is_string($device_token))
+            $this->devices[] = $device_token;
+        else
+            throw new PushNotificationGCMException(DEVICE_TOKEN_IS_NOT_STRING,'Please, check the device token format');
     }
 
     /**
@@ -166,7 +171,7 @@ class PushNotificationGCM
         if (is_array($message))
             $this->message = $message;
         else
-            throw new Exception('Message is not a valid array.');
+            throw new PushNotificationGCMException(MESSAGE_IS_NOT_ARRAY,'Please, check your message format');
     }
 
     /**
@@ -180,7 +185,7 @@ class PushNotificationGCM
         foreach ($this->devices as $device_token) {
             if (!$this->sendTo($device_token)) {
                 if (!$this->checkValidity($device_token)) {
-                    throw new Exception('Device token is not valid:' . $device_token);
+                    throw new PushNotificationGCMException(DEVICE_TOKEN_IS_NOT_VALID,'Please, the device token is not valid:' . $device_token);
                 }
             }
         }
@@ -200,6 +205,8 @@ class PushNotificationGCM
         curl_setopt($ch, CURLOPT_PORT, $this->GCMPort);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->timeout);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_SSLVERSION, 3);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HEADER, 1);
@@ -223,32 +230,33 @@ class PushNotificationGCM
         curl_close($ch);
 
         if ($response === FALSE) {
-            throw new Exception('curl error: ' . $error);
+            throw new PushNotificationGCMException(CURL_ERROR,'error: ' . $error);
         } else if ($jBody = json_decode($body)) {
             if ($jBody->success)
                 $response = true;
             else
-                throw new Exception('[sendTo]:Error to send to:' . $device_token);
+                throw new PushNotificationGCMException(SEND_TO_RESPONSE_ERROR,'error to send to:' . $device_token);
         } else {
-            throw new Exception('[sendTo]:Response is not a valid json');
+            throw new PushNotificationGCMException(SEND_TO_RESPONSE_IS_NOT_VALID,'response is not a valid json');
         }
 
         return $response;
     }
 
     /**
-     * @param $registration_ids
+     * @param $device_token
      * @return bool|mixed
      * @throws Exception
      */
-    private function checkValidity($registration_ids)
+    private function checkValidity($device_token)
     {
-
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->urlGCMSend);
         curl_setopt($ch, CURLOPT_PORT, $this->GCMPort);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->timeout);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
+        curl_setopt($ch, CURLOPT_SSLVERSION, 3);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HEADER, 1);
@@ -258,7 +266,7 @@ class PushNotificationGCM
                 'Authorization: key=' . $this->api_key)
         );
 
-        $data = json_encode(array('registration_ids' => array($registration_ids)));
+        $data = json_encode(array('registration_ids' => array($device_token)));
 
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 
@@ -272,16 +280,15 @@ class PushNotificationGCM
         curl_close($ch);
 
         if ($response === FALSE) {
-            throw new Exception('curl error: ' . $error);
+            throw new PushNotificationGCMException(CURL_ERROR,'error: ' . $error);
         } else if ($jBody = json_decode($body)) {
-
             if ($jBody->success)
                 $response = true;
             else
-                throw new Exception('[checkValidity]:Error to send validity to:' . $registration_ids);
+                throw new PushNotificationGCMException(CHECK_VALIDITY_RESPONSE_IS_NOT_VALID,'error to send validity to:' . $device_token);
 
         } else {
-            throw new Exception('[checkValidity]:Response is not a valid json');
+            throw new PushNotificationGCMException(CHECK_VALIDITY_RESPONSE_IS_NOT_VALID,'response is not a valid json');
         }
 
         return $response;
