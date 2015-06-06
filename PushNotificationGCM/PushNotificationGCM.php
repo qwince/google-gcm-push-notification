@@ -16,6 +16,9 @@ include_once 'PushNotificationGCMException.php';
 class PushNotificationGCM
 {
 
+    /** @var boolean|callback */
+    public $debug = '';
+
     /**
      * Google GCM apiKey
      * @var string
@@ -141,9 +144,12 @@ class PushNotificationGCM
      *
      * @param $api_key
      */
-    function __construct($api_key)
+    function __construct($api_key, $logger)
     {
-        $this->api_key = $api_key;
+        if(is_string($api_key))
+            $this->api_key = $api_key;
+        else
+            throw new PushNotificationGCMException(PushNotificationGCMException::API_KEY_BROKEN,"Please, insert correct api key");
     }
 
 
@@ -185,7 +191,7 @@ class PushNotificationGCM
         foreach ($this->devices as $device_token) {
             if (!$this->sendTo($device_token)) {
                 if (!$this->checkValidity($device_token)) {
-                    throw new PushNotificationGCMException(PushNotificationGCMException::DEVICE_TOKEN_IS_NOT_VALID,'Please, the device token is not valid:' . $device_token);
+                    $this->debug .='Please, check the device token!!! Is not valid: ' . $device_token;
                 }
             }
         }
@@ -230,14 +236,14 @@ class PushNotificationGCM
         curl_close($ch);
 
         if ($response === FALSE) {
-            throw new PushNotificationGCMException(PushNotificationGCMException::CURL_ERROR,'error: ' . $error);
+            $this->debug .= 'Push failure with error: ' . $error;
         } else if ($jBody = json_decode($body)) {
             if ($jBody->success)
                 $response = true;
             else
-                throw new PushNotificationGCMException(PushNotificationGCMException::SEND_TO_RESPONSE_ERROR,'error to send to:' . $device_token);
+                $this->debug .='Push return failure status for the device:' . $device_token;
         } else {
-            throw new PushNotificationGCMException(PushNotificationGCMException::SEND_TO_RESPONSE_IS_NOT_VALID,'response is not a valid json');
+            $this->debug .='Push says that the response contains a json invalid';
         }
 
         return $response;
@@ -280,15 +286,15 @@ class PushNotificationGCM
         curl_close($ch);
 
         if ($response === FALSE) {
-            throw new PushNotificationGCMException(PushNotificationGCMException::CURL_ERROR,'error: ' . $error);
+            $this->debug .= 'Check validity failure with error:' . $error;
         } else if ($jBody = json_decode($body)) {
             if ($jBody->success)
                 $response = true;
             else
-                throw new PushNotificationGCMException(PushNotificationGCMException::CHECK_VALIDITY_RESPONSE_IS_NOT_VALID,'error to send validity to:' . $device_token);
+                $this->debug .='Check validity return failure status for the device:' . $device_token;
 
         } else {
-            throw new PushNotificationGCMException(PushNotificationGCMException::CHECK_VALIDITY_RESPONSE_IS_NOT_VALID_JSON,'response is not a valid json');
+            $this->debug .='Check validity says that the response contains a json invalid';
         }
 
         return $response;
