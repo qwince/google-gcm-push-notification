@@ -1,0 +1,19 @@
+{
+  "name": "spitalia/push-notification-gcm",
+  "description": "PushNotificationGCM is small PHP library for send push notification to Android and iOS mobile devices.",
+  "keywords": ["gcm", "push notification"],
+  "homepage": "http://spitalia.it/",
+  "license": ["Apache-2.0", "GPL-2.0+"],
+  "authors": [
+    {
+      "name": "Securproject.it",
+      "homepage": "http://spitalia.it/"
+    }
+  ],
+  "require": {
+    "php": ">=5.3.0"
+  },
+  "autoload": {
+    "files": ["PushNotificationGCM/PushNotificationGCM.php"]
+  }
+}
