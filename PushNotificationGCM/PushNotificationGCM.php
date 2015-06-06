@@ -238,7 +238,7 @@ class PushNotificationGCM
         curl_close($ch);
 
         if ($response === FALSE) {
-            $this->debug[] = 'Push failure with error: ' . $error;
+            $this->debug[] = 'Push failure for the device:' . $device_token. ' with error: ' . $error;
         } else if ($jBody = json_decode($body)) {
             if ($jBody->success) {
                 $response = true;
@@ -292,7 +292,7 @@ class PushNotificationGCM
         curl_close($ch);
 
         if ($response === FALSE) {
-            $this->debug[] = 'Check validity failure with error:' . $error;
+            $this->debug[] = 'Check validity failure for the device:' . $device_token. ' with error:' . $error;
         } else if ($jBody = json_decode($body)) {
             if ($jBody->success) {
                 $response = true;
@@ -302,7 +302,7 @@ class PushNotificationGCM
                 $response = false;
             }
         } else {
-            $this->debug[] ='Check validity says that the response contains a json invalid';
+            $this->debug[] ='Check validity says that the response contains a json invalid for the device:'.$device_token;
             $response = false;
         }
 
