@@ -282,7 +282,7 @@ class PushNotificationGCM
             if ($body->success > 0) {
                 foreach ($body->results as $key_reponse=>$result) {
                     if(property_exists($result,'message_id')){
-                        $this->reponseGCM['success'][] = $this->devices[$key_reponse]->device_token;
+                        $this->reponseGCM['success'][] = $this->devices[$key_reponse];
                     }
                 }
             }
@@ -290,7 +290,7 @@ class PushNotificationGCM
             if($body->failure > 0) {
                 foreach ($body->results as $key_reponse=>$result) {
                     if(property_exists($result,'error')){
-                        $this->reponseGCM['failure'][] = $this->devices[$key_reponse]->device_token;
+                        $this->reponseGCM['failure'][] = $this->devices[$key_reponse];
                     }
                 }
             }
