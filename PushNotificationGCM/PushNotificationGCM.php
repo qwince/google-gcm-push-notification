@@ -16,11 +16,19 @@ include_once 'PushNotificationGCMException.php';
 class PushNotificationGCM
 {
 
+    const HTTP_OK           = 200;
+    const HTTP_UNAUTHORIZED = 401;
+
     /**
-     * array contains the devide token not valid
-     * @var array
+     * For iOS only - silent remote notifications
+     * @var bool
      */
-    public $device_token_not_valid = array();
+    public $silent_notification = false;
+
+    /**
+     * @var string
+     */
+    public $default_title_notification = '';
 
     /**
      * @var array
@@ -52,7 +60,12 @@ class PushNotificationGCM
     private $timeout = 10;
 
     /**
-     * Add all devices
+     * @var int
+     */
+    public $priority = 7;
+
+    /**
+     * All devices to send Push Notification
      * @var array
      */
     private $devices = array();
@@ -62,6 +75,11 @@ class PushNotificationGCM
      * @var array
      */
     private $message = array();
+
+    /**
+     * @var array
+     */
+    public $reponseGCM = array('success'=>array(),'failure'=>array());
 
     /**
      * Curl error code
@@ -163,8 +181,8 @@ class PushNotificationGCM
 
     /**
      * Add device token to queue
-     *
-     * @param string $device_token
+     * @param $device_token
+     * @throws PushNotificationGCMException
      */
     public function addDevice($device_token)
     {
@@ -172,6 +190,19 @@ class PushNotificationGCM
             $this->devices[] = $device_token;
         else
             throw new PushNotificationGCMException(PushNotificationGCMException::DEVICE_TOKEN_IS_NOT_STRING,'Please, check the device token format');
+    }
+
+
+    /**
+     * Add devices array to queue
+     * @param $devices {'os'=>'Android','device_token'=>$device_token}
+     * @throws PushNotificationGCMException
+     */
+    public function addDevices($devices){
+        if(is_array($devices))
+            $this->devices = $devices;
+        else
+            throw new PushNotificationGCMException(PushNotificationGCMException::DEVICE_TOKEN_IS_NOT_STRING,'Please, check the device array format');
     }
 
     /**
@@ -182,7 +213,7 @@ class PushNotificationGCM
      */
     public function addMessage($message)
     {
-        if (is_array($message))
+        if (is_array($message) && array_key_exists('text',$message))
             $this->message = $message;
         else
             throw new PushNotificationGCMException(PushNotificationGCMException::MESSAGE_IS_NOT_ARRAY,'Please, check your message format');
@@ -196,13 +227,10 @@ class PushNotificationGCM
      */
     public function push()
     {
-        foreach ($this->devices as $device_token) {
-            if (!$this->sendTo($device_token)) {
-                if (!$this->checkValidity($device_token)) {
-                    $this->device_token_not_valid[] = $device_token;
-                    $this->debug[] ='Please, check the device token!!! Is not valid: ' . $device_token;
-                }
-            }
+        $this->sendTo();
+
+        if(count($this->reponseGCM['failure'])){
+            $this->checkValidity();
         }
     }
 
@@ -213,8 +241,19 @@ class PushNotificationGCM
      * @return bool|mixed
      * @throws Exception
      */
-    private function sendTo($device_token)
+    private function sendTo()
     {
+        $message_to_push = array();
+        $message_to_push['registration_ids'] = $this->devices;
+        $message_to_push['data'] = $this->message;
+        $message_to_push['priority'] = $this->priority;
+
+        if($this->silent_notification == false) {
+            $title = (empty($this->message['text'])) ? $this->default_title_notification : $this->message['text'];
+            $message_to_push['notification'] = array('body' => $this->message['text'], 'title' => $title);
+            $message_to_push['content_available'] = true;
+        }
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->urlGCMSend);
         curl_setopt($ch, CURLOPT_PORT, $this->GCMPort);
@@ -232,34 +271,38 @@ class PushNotificationGCM
                 'Authorization: key=' . $this->api_key)
         );
 
-        $pf = json_encode(array('to' => $device_token, 'data' => $this->message));
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $pf);
-
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($message_to_push));
         $response = curl_exec($ch);
-
         $error = $this->error_codes[curl_errno($ch)];
 
-        $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-        $body = substr($response, $header_size);
-
+        $info = curl_getinfo($ch);
         curl_close($ch);
 
-        if ($response === FALSE) {
-            $this->debug[] = 'Push failure for the device:' . $device_token. ' with error: ' . $error;
-        } else if ($jBody = json_decode($body)) {
-            if ($jBody->success) {
-                $response = true;
-            }
-            else {
-                $this->debug[] = 'Push return failure status for the device:' . $device_token;
-                $response = false;
-            }
-        } else {
-            $this->debug[] ='Push says that the response contains a json invalid for the device:'.$device_token;
-            $response = false;
-        }
+        $body = json_decode(substr($response, $info['header_size']));
 
-        return $response;
+        if ($response === FALSE) {
+            $this->debug[] = 'Check validity failure for request with error:' . $error;
+        } else if ($body) {
+
+            if ($body->success > 0) {
+                foreach ($body->results as $key_reponse=>$result) {
+                    if(property_exists($result,'message_id')){
+                        $this->reponseGCM['success'][] = $this->devices[$key_reponse]['device_token'];
+                    }
+                }
+            }
+
+            if($body->failure > 0) {
+                foreach ($body->results as $key_reponse=>$result) {
+                    if(property_exists($result,'error')){
+                        $this->reponseGCM['failure'][] = $this->devices[$key_reponse]['device_token'];
+                    }
+                }
+            }
+
+        } else {
+            $this->debug[] ='Check validity says that the response contains a json invalid for the device:'.$device_token;
+        }
     }
 
     /**
@@ -267,7 +310,7 @@ class PushNotificationGCM
      * @return bool|mixed
      * @throws Exception
      */
-    private function checkValidity($device_token)
+    private function checkValidity()
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->urlGCMSend);
@@ -285,34 +328,12 @@ class PushNotificationGCM
                 'Authorization: key=' . $this->api_key)
         );
 
-        $data = json_encode(array('registration_ids' => array($device_token)));
-
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-
-        $response = curl_exec($ch);
-
-        $error = $this->error_codes[curl_errno($ch)];
-
-        $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-        $body = substr($response, $header_size);
-
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array('registration_ids' => 'ABC')));
+        $info = curl_getinfo($ch);
         curl_close($ch);
 
-        if ($response === FALSE) {
-            $this->debug[] = 'Check validity failure for the device:' . $device_token. ' with error:' . $error;
-        } else if ($jBody = json_decode($body)) {
-            if ($jBody->success) {
-                $response = true;
-            }
-            else {
-                $this->debug[] = 'Check validity return failure status for the device:' . $device_token;
-                $response = false;
-            }
-        } else {
-            $this->debug[] ='Check validity says that the response contains a json invalid for the device:'.$device_token;
-            $response = false;
+        if($info['http_code'] == self::HTTP_UNAUTHORIZED){
+            $this->debug[] ='Check validity of your API key.';
         }
-
-        return $response;
     }
 }
