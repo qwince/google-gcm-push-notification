@@ -31,11 +31,6 @@ class PushNotificationGCM
     public $default_title_notification = '';
 
     /**
-     * @var array
-     */
-    public $debug = array();
-
-    /**
      * Google GCM apiKey
      * @var string
      */
@@ -181,7 +176,7 @@ class PushNotificationGCM
 
     /**
      * Add device token to queue
-     * @param $device_token
+     * @param string $device_token
      * @throws PushNotificationGCMException
      */
     public function addDevice($device_token)
@@ -195,14 +190,14 @@ class PushNotificationGCM
 
     /**
      * Add devices array to queue
-     * @param $devices {'os'=>'Android','device_token'=>$device_token}
+     * @param array $devices {$device_token}
      * @throws PushNotificationGCMException
      */
     public function addDevices($devices){
         if(is_array($devices))
             $this->devices = $devices;
         else
-            throw new PushNotificationGCMException(PushNotificationGCMException::DEVICE_TOKEN_IS_NOT_STRING,'Please, check the device array format');
+            throw new PushNotificationGCMException(PushNotificationGCMException::DEVICES_IS_NOT_ARRAY,'Please, check the device array format');
     }
 
     /**
@@ -237,7 +232,6 @@ class PushNotificationGCM
     /**
      * Curl function to send the single push notification
      *
-     * @param string $device_token
      * @return bool|mixed
      * @throws Exception
      */
@@ -282,7 +276,7 @@ class PushNotificationGCM
         $body = json_decode(substr($response, $info['header_size']));
 
         if ($response === FALSE) {
-            $this->debug[] = 'Check validity failure for request with error:' . $error;
+            throw new PushNotificationGCMException(PushNotificationGCMException::CURL_ERROR,'Curl response response with error:'.$error);
         } else if ($body) {
 
             if ($body->success > 0) {
@@ -302,14 +296,12 @@ class PushNotificationGCM
             }
 
         } else {
-            $this->debug[] ='Check validity says that the response contains a json invalid for the device:'.$device_token;
+            throw new PushNotificationGCMException(PushNotificationGCMException::CURL_ERROR,'Curl response is not a valid json');
         }
     }
 
     /**
-     * @param $device_token
-     * @return bool|mixed
-     * @throws Exception
+     * Checking the validity of API key
      */
     private function checkValidity()
     {
@@ -334,7 +326,7 @@ class PushNotificationGCM
         curl_close($ch);
 
         if($info['http_code'] == self::HTTP_UNAUTHORIZED){
-            $this->debug[] ='Check validity of your API key.';
+            throw new PushNotificationGCMException(PushNotificationGCMException::API_KEY_BROKEN,"Please, insert correct api key");
         }
     }
 }

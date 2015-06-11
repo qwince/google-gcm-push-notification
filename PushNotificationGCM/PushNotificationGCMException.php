@@ -19,6 +19,8 @@ class PushNotificationGCMException extends Exception {
     const API_KEY_BROKEN                            = 1;
     const MESSAGE_IS_NOT_ARRAY                      = 2;
     const DEVICE_TOKEN_IS_NOT_STRING                = 3;
+    const DEVICES_IS_NOT_ARRAY                      = 4;
+    const CURL_ERROR                                = 5;
 
     /**
      * @param int $code
