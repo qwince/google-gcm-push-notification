@@ -77,6 +77,12 @@ class PushNotificationGCM
     public $reponseGCM = array('success'=>array(),'failure'=>array());
 
     /**
+     * set verbose the send
+     * @var bool
+     */
+    public $debug = false;
+
+    /**
      * Curl error code
      * @var array
      */
@@ -230,7 +236,7 @@ class PushNotificationGCM
     }
 
     /**
-     * Curl function to send the single push notification
+     * Curl function to send push notifications
      *
      * @return bool|mixed
      * @throws Exception
@@ -242,11 +248,14 @@ class PushNotificationGCM
         $message_to_push['data'] = $this->message;
         $message_to_push['priority'] = $this->priority;
 
-        if($this->silent_notification == false) {
-            $title = (empty($this->message['title'])) ? $this->default_title_notification : $this->message['title'];
-            $text = (array_key_exists('text',$this->message)) ? $this->message['text'] : '';
+        if($this->silent_notification === false) {
+            $title = (array_key_exists('title',$this->message)) ? $this->message['title'] : $this->default_title_notification;
+            $text  = (array_key_exists('text',$this->message))  ? $this->message['text']  : '';
             $message_to_push['notification'] = array('body' => $text, 'title' => $title);
             $message_to_push['content_available'] = true;
+        }
+        if($this->debug) {
+            $this->reponseGCM['message_to_push'] = json_encode($message_to_push);
         }
 
         $ch = curl_init();
@@ -274,6 +283,10 @@ class PushNotificationGCM
         curl_close($ch);
 
         $body = json_decode(substr($response, $info['header_size']));
+
+        if($this->debug) {
+            $this->reponseGCM['response_body'] = $body;
+        }
 
         if ($response === FALSE) {
             throw new PushNotificationGCMException(PushNotificationGCMException::CURL_ERROR,'Curl response response with error:'.$error);
@@ -325,8 +338,13 @@ class PushNotificationGCM
         $info = curl_getinfo($ch);
         curl_close($ch);
 
-        if($info['http_code'] == self::HTTP_UNAUTHORIZED){
+        if($info['http_code'] == self::HTTP_UNAUTHORIZED)
             throw new PushNotificationGCMException(PushNotificationGCMException::API_KEY_BROKEN,"Please, insert correct api key");
+
+        if($this->debug){
+            if($info['http_code'] == self::HTTP_OK)
+                $this->reponseGCM['checkValidity'] = 'API KEY is valid';
         }
+
     }
 }
