@@ -38,14 +38,20 @@ then update your dependencies with `composer update`.
         foreach($devices as $devicetoken){
             $pushNotificationGCM->addDevice($devicetoken);
         }
+        // set this for send silent push notification
+        $pushNotificationGCM->silent_notification = true;
+        
+        // set the title of badge
+        $pushNotificationGCM->default_title_notification = APP_TITLE;
+        
+        // set this for set verbose the variable $pushNotificationGCM->reponseGCM
+        $pushNotificationGCM->debug = true;
+        
         $pushNotificationGCM->addMessage($message);
         $pushNotificationGCM->push();
         
-        //if you want return the error message
-        echo implode(",",$pushNotificationGCM->debug);
         
-        //the class return the device token broken into $device_token_not_valid
-        print_r($pushNotificationGCM->device_token_not_valid);
+        // The array $pushNotificationGCM->reponseGCM contains array('success'=>array(),'failure'=>array()); if debug is true return other keys
         
     }catch (PushNotificationGCMException $e){
         echo 'Error code: '.$e->getPushNotificationCode()." - ".$e->getMessage();
