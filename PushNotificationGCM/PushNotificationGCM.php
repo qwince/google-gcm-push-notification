@@ -250,7 +250,7 @@ class PushNotificationGCM
 
         if($this->silent_notification == false) {
             $title = (empty($this->message['title'])) ? $this->default_title_notification : $this->message['title'];
-            $text = (array_key_exists('text',$message)) ? $this->message['text'] : '';
+            $text = (array_key_exists('text',$this->message)) ? $this->message['text'] : '';
             $message_to_push['notification'] = array('body' => $text, 'title' => $title);
             $message_to_push['content_available'] = true;
         }
