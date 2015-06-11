@@ -213,7 +213,7 @@ class PushNotificationGCM
      */
     public function addMessage($message)
     {
-        if (is_array($message) && array_key_exists('text',$message))
+        if (is_array($message))
             $this->message = $message;
         else
             throw new PushNotificationGCMException(PushNotificationGCMException::MESSAGE_IS_NOT_ARRAY,'Please, check your message format');
@@ -249,8 +249,9 @@ class PushNotificationGCM
         $message_to_push['priority'] = $this->priority;
 
         if($this->silent_notification == false) {
-            $title = (empty($this->message['text'])) ? $this->default_title_notification : $this->message['text'];
-            $message_to_push['notification'] = array('body' => $this->message['text'], 'title' => $title);
+            $title = (empty($this->message['title'])) ? $this->default_title_notification : $this->message['title'];
+            $text = (array_key_exists('text',$message)) ? $this->message['text'] : '';
+            $message_to_push['notification'] = array('body' => $text, 'title' => $title);
             $message_to_push['content_available'] = true;
         }
 
