@@ -249,10 +249,11 @@ class PushNotificationGCM
         $message_to_push['priority'] = $this->priority;
 
         if($this->silent_notification === false) {
-            $title = (array_key_exists('title',$this->message)) ? $this->message['title'] : $this->default_title_notification;
-            $text  = (array_key_exists('text',$this->message))  ? $this->message['text']  : '';
-            $message_to_push['notification'] = array('body' => $text, 'title' => $title);
-            $message_to_push['content_available'] = true;
+            $notification = (array_key_exists('notification',$this->message)) ? $this->message['notification'] : null;
+            if($notification){
+                $message_to_push['notification'] = $notification;
+                $message_to_push['content_available'] = true;
+            }
         }
         if($this->debug) {
             $this->reponseGCM['message_to_push'] = json_encode($message_to_push);
