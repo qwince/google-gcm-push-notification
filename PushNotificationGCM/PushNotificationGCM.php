@@ -245,7 +245,11 @@ class PushNotificationGCM
     {
         $message_to_push = array();
         $message_to_push['registration_ids'] = $this->devices;
-        $message_to_push['data'] = $this->message;
+
+        $data = (array_key_exists('data',$this->message)) ? $this->message['data'] : null;
+        if($data)
+            $message_to_push['data'] = $data;
+
         $message_to_push['priority'] = $this->priority;
 
         if($this->silent_notification === false) {
