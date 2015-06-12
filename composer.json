@@ -14,7 +14,14 @@
     "php": ">=5.3.0",
     "ext-curl": "*"
   },
+  "require-dev": {
+    "codeception/codeception": "@dev"
+  },
   "autoload": {
+    "psr-0":{
+      "Codeception":"src"
+
+    },
     "files": ["PushNotificationGCM/PushNotificationGCM.php"]
   }
 }
