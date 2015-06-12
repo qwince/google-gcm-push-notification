@@ -214,7 +214,7 @@ class PushNotificationGCM
      */
     public function addMessage($message)
     {
-        if (is_array($message) || is_object($message))
+        if (is_array($message))
             $this->message = $message;
         else
             throw new PushNotificationGCMException(PushNotificationGCMException::MESSAGE_IS_NOT_ARRAY,'Please, check your message format');
