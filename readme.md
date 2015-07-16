@@ -32,7 +32,7 @@ then update your dependencies with `composer update`.
 
     $pushNotificationGCM = new PushNotificationGCM($google_api_key);
     $devices = array($devicetoken);
-    $message = array('message' => 'hello', 'reason' => 'new_event');
+    $message = ['data' => ['message' => 'hello', 'reason' => 'new_event']];
     
     try {
         foreach($devices as $devicetoken){
